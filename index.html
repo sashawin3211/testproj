@@ -15,7 +15,9 @@
         let coords = new Array(2);
         let timestamp;
         let time;
-
+        let name_ast;
+        let myMap;
+        let myPlacemark;
 
         function getCoords() {
             $.getJSON("http://api.open-notify.org/iss-now.json", function(data) {
@@ -23,10 +25,17 @@
                 $.each(data, (function(key, value) {
                     coords[0] = (data['iss_position']['latitude']);
                     coords[1] = (data['iss_position']['longitude']);
-                    // alert(coords[0]);
+                    myMap.geoObjects.removeAll();
+                    myPlacemark = new ymaps.Placemark([coords[0], coords[1]]);
+                    myMap.geoObjects.add(myPlacemark);
+                    
                     timestamp = (data['timespamp']);
                     let date = new Date();
-                    time = date.toUTCString();                 
+                    time = date.toUTCString(); 
+                    $("#coords").empty();
+                    $("#coords").append('<div>'+"longitude: "+coords[0]+" latitude "+coords[1]+'</div>');
+                    
+                    
                     
                 }));
                 let $time_div;
@@ -37,14 +46,17 @@
         }
 
         getCoords();
-        let myMap;
+        
 
         function changeCent() {
             myMap.setCenter([coords[0], coords[1]], 3);
         }
+        
 
 
-        let name_ast;
+                                              
+
+        
 
         function getAstros() {
             $.getJSON("http://api.open-notify.org/astros.json", function(data) {
@@ -69,13 +81,20 @@
 
             });
         }
+        function placemark(){
+        myPlacemark = new ymaps.Placemark([coords[0], coords[1]], {}, {
+    preset: 'islands#redIcon'
+});
+        }
         ymaps.ready(init);
         setInterval(getCoords, 5000);
         setInterval(changeCent, 5000);
         setInterval(getAstros, 5000);
         getAstros();
+        setInterval(placemark,5000);
+        
     </script>
-
+    
 
 
     <meta charset="UTF-8">
@@ -87,7 +106,7 @@
     <div class="container container-head">
 
         <div class="row">
-            <div class="col-8 col-left-head">Левая</div>
+            <div class="col-8 col-left-head " id="coords">Левая</div>
             <div class="col col-right-head">
                 <div id="time"></div>
             </div>
